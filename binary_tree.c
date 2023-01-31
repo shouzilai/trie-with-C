@@ -68,8 +68,12 @@ static int trie_sets_deinit(sets_p b_sets_p)
             free(b_sets_p->child_sets);
             b_sets_p->child_sets = NULL;
         }
-        free(b_sets_p);
-    }
+    } 
+    // free(b_sets_p);
+    // else {
+    //     b_sets_p->sets_count = b_sets_p->sets_count - 1;
+    // }
+
 
     return SUCCESS;
 }
@@ -124,7 +128,6 @@ static int trie_single_delete(trie_p b_trie_p)
 
     if (tries_ptr->sets != NULL) {
         trie_sets_deinit(tries_ptr->sets);
-        tries_ptr->sets = NULL;
     }
 
     return SUCCESS;
@@ -148,10 +151,13 @@ int trie_deinit(trie_p b_trie_p)
         }
         child_set = s_sets[i]->child_sets;
         count = s_sets[i]->sets_count;
-        for (int j = 0; j < count; j++) {           
+        for (int j = 0; j < count; j++) {
             // 2.释放单个结点的资源
-            printf("%d, %c | ", s_sets[i]->level, (*child_set)->letter);
+            printf("%d, %c %p | ", s_sets[i]->level, (*child_set)->letter, *child_set);
             trie_single_delete(*child_set);
+            free(*child_set);
+            *child_set = NULL;
+            // printf("***********\n");
             child_set += 1;
         }
         // trie_deinit(*t_sets);
@@ -178,7 +184,7 @@ static int trie_single_init(trie_p b_trie_p, uint8_t level, char c)
     // 出现新层级的 子集, 填充子集数组
     if (level > s_level) {
         b_trie_p->sets = trie_sets_init(level);
-        s_level = (s_level + 1) % 6;
+        s_level = (s_level + 1) % TIRE_MAX_NODE;
         s_sets[s_level] = b_trie_p->sets;    // 这两语句，一直顺序反了，注意一下；；导致添加结点一直失败
     } else {
         b_trie_p->sets = s_sets[level];

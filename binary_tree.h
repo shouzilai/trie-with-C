@@ -9,8 +9,8 @@
 #include "common.h"
 
 #define DOUBLE_LINEAR_LIST_DATA_SIZE  128
-#define TIRE_MAX_NODE          6
-#define TRIE_CHILD_SET_SIZE    6
+#define TIRE_MAX_NODE          7
+#define TRIE_CHILD_SET_SIZE    7
 
 struct binary_tree;
 struct trie;
