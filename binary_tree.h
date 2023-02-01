@@ -44,7 +44,7 @@ struct sets {
 } ;
 
 
-int trie_child_sets_show();
+int trie_child_sets_show(void);
 
 trie_p trie_init(trie_p b_trie_p);
 
@@ -52,6 +52,7 @@ int trie_deinit(trie_p b_trie_p);
 
 int trie_add(trie_p b_trie_p, char* string_, uint8_t str_len);
 
+int trie_ergodic(void);
 
 #endif // __BINARY_TREE_H__
 
