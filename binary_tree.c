@@ -54,6 +54,8 @@ static sets_p trie_sets_init(uint8_t level)
     }
     memset(temp->child_sets, 0x0, TRIE_CHILD_SET_SIZE * sizeof(trie_p*));
 
+
+
     return temp;
 }
 
@@ -171,39 +173,47 @@ int trie_deinit(trie_p b_trie_p)
     return SUCCESS;
 }
 
-static int trie_single_init(trie_p b_trie_p, uint8_t level, char c)
+static int trie_single_init(sets_p t_sets, char c)
 {
-    if (b_trie_p == NULL) {
+    if (t_sets == NULL) {
         return FAILURE;
     }
-    trie_p trie_ptr = b_trie_p;
+    trie_p trie_ptr = NULL;
+    uint8_t count = 0;
+    trie_p* tries_ptr = NULL;
 
-    b_trie_p->val = 0;
-    b_trie_p->letter = c;
-    b_trie_p->is_exist = NON_EXIST;
-    //  b_trie_p->sets = NULL;
-
-    // 出现新层级的 子集, 填充子集数组
-    if (level > s_level) {
-        b_trie_p->sets = trie_sets_init(level);
-        s_level = (s_level + 1) % TIRE_MAX_NODE;
-        s_sets[s_level] = b_trie_p->sets;    // 这两语句，一直顺序反了，注意一下；；导致添加结点一直失败
-    } else {
-        b_trie_p->sets = s_sets[level];
+    count = t_sets->sets_count;
+    tries_ptr = t_sets->child_sets;
+    if (count >= TRIE_CHILD_SET_SIZE || tries_ptr == NULL) {
+        return FAILURE;
     }
+
+    *(tries_ptr + count) = (trie_p)malloc(sizeof(trie_t));
+    if (*(tries_ptr + count) == NULL) {
+        printf("trie single init failure\n");
+        return FAILURE;
+    }
+    trie_ptr = *(tries_ptr + count);
+
+    trie_ptr->val = 0;
+    trie_ptr->letter = c;
+    trie_ptr->is_exist = NON_EXIST;
+    trie_ptr->sets = NULL;
+
+    t_sets->sets_count = count + 1;
 
     return SUCCESS;    
 }
 
-static int trie_singel_add(trie_p b_trie_p, uint8_t level, char c)
+static int trie_singel_add(uint8_t level, char c)
 {
-    if (b_trie_p == NULL) {
+    if (level < 0) {
         return FAILURE;
     }
     uint8_t count = 0;
     sets_p t_sets = NULL;
     trie_p* tries_ptr = NULL;
-    trie_p trie_ptr = b_trie_p;
+    trie_p trie_ptr = NULL;
 
     t_sets = s_sets[level - 1];
     count = t_sets->sets_count;
@@ -211,20 +221,23 @@ static int trie_singel_add(trie_p b_trie_p, uint8_t level, char c)
     // tries_ptr = trie_ptr->sets->child_sets;
     // count = trie_ptr->sets->sets_count;     // 注释部分是错误的，需要依据层次级别来确定分布位置
     
-    if (count < TRIE_CHILD_SET_SIZE) {
-        tries_ptr += count;
-        *tries_ptr = (trie_p)malloc(sizeof(trie_t));
-        // printf("count is %d, *tries_ptr 0x%p\n", count, *tries_ptr);
-        if (*tries_ptr == NULL) {
-            printf("trie single init failure\n");
-            return FAILURE;
-        }
-        trie_single_init(*tries_ptr, level, c);
-        t_sets->sets_count = count + 1;
-    } else {
+    if (trie_single_init(t_sets, c) != SUCCESS) {
         printf("trie single table is full\n");
         return FAILURE;
+    } else {
+        printf("trie single init success\n");
     }
+
+    // 出现新层级的 子集, 填充子集数组
+    trie_ptr = *tries_ptr;
+    if (level > s_level) {
+        trie_ptr->sets = trie_sets_init(level);
+        s_level = (s_level + 1) % TIRE_MAX_NODE;
+        s_sets[s_level] = trie_ptr->sets;    // 这两语句，一直顺序反了，注意一下；；导致添加结点一直失败
+    } else {
+        trie_ptr->sets = s_sets[level];
+    }
+
     return SUCCESS;
 }
 
@@ -293,7 +306,7 @@ int trie_ergodic(void)
 
 int trie_add(trie_p b_trie_p, char* string_, uint8_t str_len)
 {
-    if (b_trie_p == NULL || str_len < 0) {
+    if (string_ == NULL || str_len < 0) {
         return FAILURE;
     }
     EXIST_STATE state = NON_EXIST;
@@ -301,7 +314,7 @@ int trie_add(trie_p b_trie_p, char* string_, uint8_t str_len)
     uint8_t count = 0;
     sets_p t_sets = NULL;
     trie_p* tries_ptr = NULL;
-    trie_p cur_p = b_trie_p;
+    trie_p trie_ptr = b_trie_p;
 
     // 扫描字符串 如果出现某层结点即将出现重复结点，移至下一层建立结点
     for (int i = 0; i < str_len; i++) {
@@ -317,18 +330,19 @@ int trie_add(trie_p b_trie_p, char* string_, uint8_t str_len)
         for (int j = 0; j < count; j++) {
             if ((*(tries_ptr + j))->letter == c_temp) { // 当前层次存在相同字符结点，扫描下一子集
                 printf("Hello World\n");
-                cur_p = *(tries_ptr + j);
+                trie_ptr = (*(tries_ptr + j));
                 state = EXIST;
                 break;
             }
+            trie_ptr->is_exist = EXIST;
         }
         if (state == NON_EXIST) {
-            trie_singel_add(cur_p, i + 1, c_temp);
+            trie_singel_add(i + 1, c_temp);
         } else {
             state = NON_EXIST;
         }
     }
-    cur_p->is_exist = EXIST;
+    
 
     return SUCCESS;
 }
