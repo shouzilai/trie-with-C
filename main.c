@@ -19,15 +19,15 @@ int main()
         printf("NULL\n");
     }
 
-    trie_child_sets_show();
+    // trie_child_sets_show();
     trie_add(my_trie_ptr, "abc", 3);
     trie_add(my_trie_ptr, "aaz", 3);
-    trie_add(my_trie_ptr, "aba", 3);
-    trie_add(my_trie_ptr, "aborad", 6);
+    // trie_add(my_trie_ptr, "aba", 3);
+    // trie_add(my_trie_ptr, "aborad", 6);
     trie_child_sets_show();
     trie_ergodic();
 
-    trie_deinit(my_trie_ptr);
+    // trie_deinit(my_trie_ptr);
     printf("Hello World\n");
 
     return 0;

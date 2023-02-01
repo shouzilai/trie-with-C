@@ -226,7 +226,7 @@ static int trie_single_init(sets_p t_sets, char c)
 
     trie_ptr->val = 0;
     trie_ptr->letter = c;
-    trie_ptr->is_exist = NON_EXIST;
+    trie_ptr->is_exist = EXIST;
     trie_ptr->sets = NULL;
 
     t_sets->sets_count = count + 1;
@@ -264,7 +264,7 @@ static int trie_singel_add(uint8_t level, char c)
 int trie_ergodic(void)
 {
     uint8_t len = TRIE_CHILD_SET_SIZE;
-    trie_p temp = NULL;
+    trie_p trie_ptr = NULL;
     sets_p t_sets = NULL;
 
     for (int j = 0; j < TIRE_MAX_NODE; j++) {
@@ -274,8 +274,8 @@ int trie_ergodic(void)
         t_sets = s_sets[j];
         printf("<<trie ergodic start>> level is %d %p | ", t_sets->level, s_sets[j]);
         for (int i = 0; i < t_sets->sets_count; i++) {
-            temp = *(t_sets->child_sets + i);
-            printf("%c | ", temp->letter);
+            trie_ptr = *(t_sets->child_sets + i);
+            printf("%c, %d, %d | ", trie_ptr->letter, trie_ptr->val, trie_ptr->is_exist);
         }
         printf("<<trie ergodic end>>\n");
     }
@@ -309,11 +309,9 @@ int trie_add(trie_p b_trie_p, char* string_, uint8_t str_len)
         for (int j = 0; j < count; j++) {
             if ((*(tries_ptr + j))->letter == c_temp) { // 当前层次存在相同字符结点，扫描下一子集
                 printf("Hello World\n");
-                trie_ptr = (*(tries_ptr + j));
                 state = EXIST;
                 break;
             }
-            trie_ptr->is_exist = EXIST;
         }
 
         if (state == NON_EXIST) {
@@ -326,3 +324,5 @@ int trie_add(trie_p b_trie_p, char* string_, uint8_t str_len)
 
     return SUCCESS;
 }
+
+// int trie_index()
