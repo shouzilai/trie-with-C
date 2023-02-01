@@ -1,6 +1,6 @@
 #include "binary_tree.h"
 
-static uint8_t s_level = -1;
+static int s_level = -1;
 static sets_p s_sets[TIRE_MAX_NODE] = {NULL};
 
 int trie_child_sets_show(void)
@@ -29,13 +29,13 @@ int trie_child_sets_show(void)
     return SUCCESS;
 }
 
-static sets_p trie_sets_init(uint8_t level)
+static sets_p trie_sets_alloc(uint8_t level)
 {
     if (level < 0) {
         return NULL;
     }
-    sets_p temp = NULL;
 
+    sets_p temp = NULL;
     // 1.分配 子集 空间
     temp = (sets_p)malloc(sizeof(sets_t));
     if (temp == NULL) {
@@ -54,9 +54,40 @@ static sets_p trie_sets_init(uint8_t level)
     }
     memset(temp->child_sets, 0x0, TRIE_CHILD_SET_SIZE * sizeof(trie_p*));
 
-
-
     return temp;
+}
+
+static int trie_sets_init(sets_p t_sets, uint8_t level)
+{
+    if (level < 0) {
+        return FAILURE;
+    }
+    uint8_t count = 0;
+    trie_p* tries_ptr = NULL;
+    trie_p trie_ptr = NULL;
+    sets_p temp = NULL;
+
+    if (s_level == -1) {
+        temp = trie_sets_alloc(level);
+        s_sets[0] = temp;
+        s_level = 0;
+        return FAILURE;
+    }
+
+    count = t_sets->sets_count;
+    tries_ptr = t_sets->child_sets;
+    trie_ptr = *tries_ptr;
+    if (level > s_level) {
+        // 出现新层级的 子集, 填充子集数组
+        temp = trie_sets_alloc(level);
+        trie_ptr->sets = temp;
+        s_level = (s_level + 1) % TIRE_MAX_NODE;
+        s_sets[s_level] = trie_ptr->sets;
+    } else {
+        trie_ptr->sets = s_sets[level];
+    }
+
+    return SUCCESS;
 }
 
 static int trie_sets_deinit(sets_p* b_sets_p)
@@ -100,7 +131,6 @@ static int trie_sets_delete(sets_p b_sets_p)
 }
 
 
-
 trie_p trie_init(trie_p b_trie_p)
 {
     if (b_trie_p == NULL) {
@@ -113,9 +143,8 @@ trie_p trie_init(trie_p b_trie_p)
     b_trie_p->letter = 0;
 
     ///2、初始化 结构成员 
-    b_trie_p->sets = trie_sets_init(0);
-    s_sets[0] = b_trie_p->sets;
-    s_level += 1;
+    trie_sets_init(NULL, 0);
+    b_trie_p->sets = s_sets[0];
 
     // printf("trie init success, s_sets[0]->childs is 0x%p, level is %d\n", s_sets[0]->child_sets[0], s_sets[0]->level);
     printf("trie init success\n");
@@ -202,7 +231,7 @@ static int trie_single_init(sets_p t_sets, char c)
 
     t_sets->sets_count = count + 1;
 
-    return SUCCESS;    
+    return SUCCESS;
 }
 
 static int trie_singel_add(uint8_t level, char c)
@@ -218,69 +247,19 @@ static int trie_singel_add(uint8_t level, char c)
     t_sets = s_sets[level - 1];
     count = t_sets->sets_count;
     tries_ptr = t_sets->child_sets;
-    // tries_ptr = trie_ptr->sets->child_sets;
-    // count = trie_ptr->sets->sets_count;     // 注释部分是错误的，需要依据层次级别来确定分布位置
-    
+
     if (trie_single_init(t_sets, c) != SUCCESS) {
         printf("trie single table is full\n");
         return FAILURE;
-    } else {
-        printf("trie single init success\n");
     }
 
-    // 出现新层级的 子集, 填充子集数组
-    trie_ptr = *tries_ptr;
-    if (level > s_level) {
-        trie_ptr->sets = trie_sets_init(level);
-        s_level = (s_level + 1) % TIRE_MAX_NODE;
-        s_sets[s_level] = trie_ptr->sets;    // 这两语句，一直顺序反了，注意一下；；导致添加结点一直失败
-    } else {
-        trie_ptr->sets = s_sets[level];
+    if (trie_sets_init(t_sets, level) != SUCCESS) {
+        printf("trie sets init failure\n");
+        return FAILURE;
     }
 
     return SUCCESS;
 }
-
-// int trie_add1(trie_p b_trie_p, char* string_, uint8_t str_len)
-// {
-//     if (b_trie_p == NULL || str_len < 0) {
-//         return FAILURE;
-//     }
-//     EXIST_STATE state = NON_EXIST;
-//     char c_temp = 0;
-//     uint8_t len = 0, pos = 0;
-//     trie_p* temp = NULL;
-//     trie_p cur_p = b_trie_p;
-//     pos = cur_p->sets_count;
-//     len = cur_p->sets_len;
-//     temp = cur_p->child_sets;
-//     // 扫描字符串 如果出现某层结点即将出现重复结点，移至下一层建立结点
-//     for (int i = 0, j; i < str_len; i++) {
-//         c_temp = string_[i];
-//         printf("%c  ", c_temp);
-//         for (j = 0; j < pos; j++) {
-//             if ((*(temp + j))->letter == c_temp) { // 当前层次存在相同结点，扫描下一结点
-//                 printf("Hello World\n");
-//                 state = EXIST;
-//                 cur_p = *(temp + j);
-//                 break;
-//             }
-//         }
-//         if (state == NON_EXIST) { // 当前层次不存在相同结点，直接建点
-//             trie_singel_add(cur_p, c_temp);
-//             cur_p = *(temp + j);
-//         } else {
-//             state = NON_EXIST;
-//         }
-//         // 临时变量接替，下一主结点的成员们
-//         pos = cur_p->sets_count;
-//         len = cur_p->sets_len;
-//         temp = cur_p->child_sets;
-//         // printf("\ncur_p is 0x%x\n", cur_p);
-//     }
-//     cur_p->is_exist = EXIST;
-//     return SUCCESS;
-// }
 
 int trie_ergodic(void)
 {
@@ -336,6 +315,7 @@ int trie_add(trie_p b_trie_p, char* string_, uint8_t str_len)
             }
             trie_ptr->is_exist = EXIST;
         }
+
         if (state == NON_EXIST) {
             trie_singel_add(i + 1, c_temp);
         } else {
