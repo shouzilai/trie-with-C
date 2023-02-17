@@ -19,12 +19,15 @@ int main()
     }
 
     trie_child_sets_show(my_trie_ptr);
-    trie_add(my_trie_ptr, "abc", 3);
-    trie_add(my_trie_ptr, "aaz", 3);
-    trie_add(my_trie_ptr, "aba", 3);
-    trie_add(my_trie_ptr, "abcd", 4);
+    trie_add(my_trie_ptr, "great", 5);
+    trie_add(my_trie_ptr, "tri", 3);
+    trie_add(my_trie_ptr, "trial", 5);
+    trie_add(my_trie_ptr, "my", 2);
 
     trie_ergodic(my_trie_ptr);
+    printf("\nexist is %d\n", trie_str_is_exist(my_trie_ptr, "trial", 3));
+    printf("exist is %d\n", trie_str_is_exist(my_trie_ptr, "abc", 3));
+
     // trie_child_sets_show(my_trie_ptr);
     // trie_child_sets_show(*my_trie_ptr->child_sets);
     // trie_child_sets_show(*(*my_trie_ptr->child_sets)->child_sets);
@@ -37,7 +40,7 @@ int main()
 }
 
 // gcc -o trial main.c binary_tree.c
-
+// valgrind --leak-check=yes ./trial
             // else {
             //     uint8_t _pos = cur_p->sets_pos;
             //     trie_p* temp = cur_p->child_sets;

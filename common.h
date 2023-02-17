@@ -25,7 +25,7 @@ typedef enum EXIST_STATE_T {
     NON_EXIST = 0x0,
     EXIST = 0x1,
     UNCERTAIN = 0x2,
-    DEFINITELY,
+    DEFINITELY = 0x3,
 } EXIST_STATE;
 
 

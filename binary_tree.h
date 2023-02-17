@@ -46,5 +46,7 @@ int trie_add(trie_p b_trie_p, char* string_, uint8_t str_len);
 
 int trie_ergodic(trie_p b_trie_p);
 
+int trie_str_is_exist(trie_p b_trie_p, const char* string_, uint8_t str_len);
+
 #endif // __BINARY_TREE_H__
 

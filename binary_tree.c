@@ -1,37 +1,22 @@
 #include "binary_tree.h"
 
-// int trie_child_sets_show(void)
-// {  
-//     uint8_t level = TRIE_CHILD_SET_SIZE, temp = 0;
-//     sets_p t_sets = NULL;
 
-//     for (int j = 0; j < TIRE_MAX_NODE; j++) {
-//         if (s_sets[j] == NULL) {
-//             printf(" %d NULL ", j);
-//             continue;
-//         }
-//         t_sets = s_sets[j];
-//         printf("<<trie show start>> level, count, set_p, child_set %d %d %p %p \n| ", t_sets->level, s_sets[j]->sets_count, s_sets[j], s_sets[j]->child_sets);
-//         for (int i = level * sizeof(trie_p) - 1; i > -1 ; i--) {
-//             temp = *((uint8_t*)t_sets->child_sets + i);
-//             printf("%x ", temp);
-//             if (i % 8 == 0) {
-//                 printf("| ");
-//             }
-//         }
-//         printf("<<trie show end>>\n");
-//     }
-//     printf("s_level is %d\n", s_level);
-//     return SUCCESS;
-// }
-
-static char trie_letter(trie_p *b_trie_p)
+static int trie_is_exist(trie_p b_trie_p)
 {
     if (b_trie_p == NULL) {
-        return FAILURE;
+        return NON_EXIST;
     }
+    
+    return b_trie_p->is_exist;
+}
 
-    return (*b_trie_p)->letter;
+static char trie_letter(trie_p b_trie_p)
+{
+    if (b_trie_p == NULL) {
+        return '-';
+    }
+    
+    return b_trie_p->letter;
 }
 
 int trie_child_sets_show(trie_p b_trie_p)
@@ -47,7 +32,7 @@ int trie_child_sets_show(trie_p b_trie_p)
     printf("<<<trie show start>>> level<%d> count<%d> | ", level, count);
     for (int i = 0; i < TIRE_MAX_NODE; i++) {
         trie_ptr = *(tries_ptr + i);
-        printf("%18p | ", trie_ptr);
+        printf("%14p <%c> <%d>| ", trie_ptr, trie_letter(trie_ptr), trie_is_exist(trie_ptr));
     }
     printf("<<<trie show end>>>\n");
 
@@ -108,11 +93,10 @@ int trie_deinit(trie_p b_trie_p)
     level = tries_ptr->sets_level;
     trie_ptr = tries_ptr->child_sets;
     for (int i = 0; i < pos; i++) {
-        printf("delete letter: %c  ", (*trie_ptr)->letter);
+        printf("delete: %c  ", (*trie_ptr)->letter);
         trie_deinit(*trie_ptr);
         trie_ptr += 1;
     }
-    printf("\n");
 
     // 2、释放单个结点的资源
     trie_single_delete(tries_ptr);
@@ -121,7 +105,6 @@ int trie_deinit(trie_p b_trie_p)
         b_trie_p = NULL;
     }
 
-    // printf("trie deinit success!!!\n");
     return SUCCESS;
 }
 
@@ -203,28 +186,45 @@ int trie_ergodic(trie_p b_trie_p)
     return SUCCESS;
 }
 
-int trie_index(trie_p b_trie_p, char c)
+int trie_str_is_exist(trie_p b_trie_p, const char* string_, uint8_t str_len)
 {
-    // if (b_trie_p == NULL || str_level < 0) {
-    //     return FAILURE;
-    // }
-    // char c_temp = c;
-    // uint8_t level = 0, pos = 0;
-    // trie_p* temp = NULL;
-    // trie_p cur_p = b_trie_p;
+    if (b_trie_p == NULL || string_ == NULL || str_len < 0) {
+        return FAILURE;
+    }
+    EXIST_STATE state = NON_EXIST;
+    char c_temp = 0;
+    uint8_t level = 0, count = 0;
+    trie_p* temp = NULL;
+    trie_p cur_p = b_trie_p, trie_ptr = b_trie_p;
 
-    // pos = cur_p->sets_pos;
-    // level = cur_p->sets_level;
-    // temp = cur_p->child_sets;
+    count = cur_p->sets_count;
+    level = cur_p->sets_level;
+    temp = cur_p->child_sets;
 
-    // for (int i = 0; i < pos; i++) {
-    //     if ((*(temp + i))->letter == c_temp) {
-    //         return 
-    //     }
-    // }
-    // trie_index
+    for (int i = 0; i < str_len; i++) {
+        c_temp = *(string_ + i);
+        // 扫描字符串中每个字符，一旦出现本地为存储的返回 FAILURE
+        for (int j = 0; j < TIRE_MAX_NODE; j++) {
+            if (*(temp + j) == NULL) {
+                continue;
+            }
+            trie_ptr = *(temp + j);
+            cur_p = trie_ptr;
+            if (trie_letter(trie_ptr) == c_temp) {
+                break;
+            } else if (j == count - 1) {
+                return NON_EXIST;
+            } else {
+                continue;
+            }
+        }
 
-    return SUCCESS;
+        count = cur_p->sets_count;
+        level = cur_p->sets_level;
+        temp = cur_p->child_sets;
+    }
+
+    return trie_is_exist(cur_p);
 }
 
 int trie_add(trie_p b_trie_p, char* string_, uint8_t str_len)
@@ -248,8 +248,7 @@ int trie_add(trie_p b_trie_p, char* string_, uint8_t str_len)
     // 扫描字符串 如果出现某层结点即将出现重复结点，移至下一层建立结点
     for (int i = 0, j; i < str_len; i++) {
         c_temp = string_[i];
-        printf("%c  ", c_temp);
-
+        printf("%c ", c_temp);
 
         for (j = 0; j < count; j++) {
             if ((*(temp + j))->letter == c_temp) { // 当前层次存在相同结点，扫描下一结点
@@ -270,7 +269,6 @@ int trie_add(trie_p b_trie_p, char* string_, uint8_t str_len)
         count = cur_p->sets_count;
         level = cur_p->sets_level;
         temp = cur_p->child_sets;
-        // printf("\ncur_p is 0x%x\n", cur_p);
     }
     cur_p->is_exist = EXIST;
 
