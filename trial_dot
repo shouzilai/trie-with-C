@@ -1,0 +1,31 @@
+digraph "callgraph" {
+  F56013020a890 [label="_start\n236 266"];
+  F560130231090 [label="trie_sets_init\n63 743"];
+  F5601302b4830 [label="trie_child_sets_show\n152 623"];
+  F5601302b4da0 [label="printf\n146 153"];
+  F5601302b70f0 [label="trie_sets_alloc\n63 469"];
+  F5601302b7990 [label="malloc\n63 216"];
+  F5601302b8790 [label="trie_ergodic\n13 751"];
+  F5601302b96b0 [label="trie_init\n65 387"];
+  F5601302bb660 [label="(below main)\n236 266"];
+  F5601302bc820 [label="main\n236 266"];
+  F5601302c08f0 [label="vfprintf\n139 429"];
+  F5601302da3a0 [label="_IO_file_xsputn@@GLIBC_2.2.5\n45 531"];
+  F5601302dd120 [label="_dl_addr\n57 702"];
+  F5601302de070 [label="ptmalloc_init.part.0\n59 801"];
+  F5601302e1870 [label="malloc_hook_ini\n60 498"];
+  F56013020a890 -> F5601302bb660 [weight=2,label="236 266 (1x)"];
+  F560130231090 -> F5601302b70f0 [weight=2,label="63 469 (4x)"];
+  F5601302b4830 -> F5601302b4da0 [weight=2,label="146 153 (260x)"];
+  F5601302b4da0 -> F5601302c08f0 [weight=2,label="139 429 (249x)"];
+  F5601302b70f0 -> F5601302b7990 [weight=2,label="63 216 (8x)"];
+  F5601302b7990 -> F5601302e1870 [weight=2,label="60 498 (1x)"];
+  F5601302b96b0 -> F560130231090 [weight=2,label="63 743 (1x)"];
+  F5601302bb660 -> F5601302bc820 [weight=2,label="236 266 (1x)"];
+  F5601302bc820 -> F5601302b4830 [weight=2,label="152 623 (1x)"];
+  F5601302bc820 -> F5601302b8790 [weight=2,label="13 751 (1x)"];
+  F5601302bc820 -> F5601302b96b0 [weight=2,label="65 387 (1x)"];
+  F5601302c08f0 -> F5601302da3a0 [weight=2,label="45 531 (739x)"];
+  F5601302de070 -> F5601302dd120 [weight=2,label="57 702 (1x)"];
+  F5601302e1870 -> F5601302de070 [weight=2,label="59 801 (1x)"];
+}

@@ -12,7 +12,7 @@ int main()
 {
     uint8_t data[10] = {0};
     trie_t my_trie, *my_trie_ptr;
-    my_trie_ptr = trie_init(&my_trie, TIRE_MAX_NODE);
+    my_trie_ptr = trie_init(&my_trie, 0);
 
     if (my_trie_ptr == NULL) {
         printf("NULL\n");
@@ -20,10 +20,15 @@ int main()
 
     trie_child_sets_show(my_trie_ptr);
     trie_add(my_trie_ptr, "abc", 3);
-    // trie_add(my_trie_ptr, "aaz", 3);
-    // trie_add(my_trie_ptr, "aba", 3);
-    // trie_add(my_trie_ptr, "bba", 3);
-    trie_child_sets_show(my_trie_ptr);
+    trie_add(my_trie_ptr, "aaz", 3);
+    trie_add(my_trie_ptr, "aba", 3);
+    trie_add(my_trie_ptr, "abcd", 4);
+
+    trie_ergodic(my_trie_ptr);
+    // trie_child_sets_show(my_trie_ptr);
+    // trie_child_sets_show(*my_trie_ptr->child_sets);
+    // trie_child_sets_show(*(*my_trie_ptr->child_sets)->child_sets);
+    // trie_child_sets_show(*(*(*my_trie_ptr->child_sets)->child_sets)->child_sets);
 
     trie_deinit(my_trie_ptr);
     printf("Hello World\n");
