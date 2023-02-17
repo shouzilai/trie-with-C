@@ -25,8 +25,11 @@ int main()
     trie_add(my_trie_ptr, "my", 2);
 
     trie_ergodic(my_trie_ptr);
-    printf("\nexist is %d\n", trie_str_is_exist(my_trie_ptr, "trial", 3));
-    printf("exist is %d\n", trie_str_is_exist(my_trie_ptr, "abc", 3));
+    // printf("\nexist is %d\n", trie_str_is_exist(my_trie_ptr, "trial", 3));
+    // printf("exist is %d\n", trie_str_is_exist(my_trie_ptr, "abc", 3));
+
+    trie_subtruct(my_trie_ptr, "tri", 3);
+    trie_subtruct(my_trie_ptr, "great", 5);
 
     // trie_child_sets_show(my_trie_ptr);
     // trie_child_sets_show(*my_trie_ptr->child_sets);
@@ -41,15 +44,6 @@ int main()
 
 // gcc -o trial main.c binary_tree.c
 // valgrind --leak-check=yes ./trial
-            // else {
-            //     uint8_t _pos = cur_p->sets_pos;
-            //     trie_p* temp = cur_p->child_sets;
-            //     for (int k = 0; k < _pos; k++) {
-            //         if ((*(temp + k))->letter == c_temp) { // 当前的下一层次存在相同结点，扫描下一结点
-            //             printf("Hello World\n");
-            //             state = EXIST;
-            //             cur_p = *(temp + k);
-            //             break;
-            //         }
-            //     }                
-            // }
+
+
+
