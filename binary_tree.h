@@ -11,18 +11,18 @@
 #define DOUBLE_LINEAR_LIST_DATA_SIZE  128
 #define TIRE_MAX_NODE  6
 
-struct binary_tree;
+struct trie_task;
 struct trie;
 
-typedef struct binary_tree binary_tree_t, *binary_tree_p;
 typedef struct trie trie_t, *trie_p;
+typedef struct trie_task trie_task_t, *trie_task_p;
 
-struct binary_tree {
-    uint8_t val;
-    uint8_t *data;
-
-    binary_tree_p left;
-    binary_tree_p right;
+struct trie_task {
+    void (*trie_data_add)(void *arg);
+    void (*trie_data_substruct)(void *arg);
+    void (*trie_data_show_list)(void *arg);
+    void (*trie_data_control)(void *arg);
+    void *argument;
 } ;
 
 struct trie {
@@ -49,6 +49,8 @@ int trie_ergodic(trie_p b_trie_p);
 int trie_str_is_exist(trie_p b_trie_p, const char* string_, uint8_t str_len);
 
 int trie_subtruct(trie_p b_trie_p, char* string_, uint8_t str_len);
+
+trie_p trie_index(trie_p b_trie_p, char* string_, uint8_t str_len);
 
 #endif // __BINARY_TREE_H__
 

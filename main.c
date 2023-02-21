@@ -18,7 +18,7 @@ int main()
         printf("NULL\n");
     }
 
-    trie_child_sets_show(my_trie_ptr);
+    // trie_child_sets_show(my_trie_ptr);
     trie_add(my_trie_ptr, "great", 5);
     trie_add(my_trie_ptr, "tri", 3);
     trie_add(my_trie_ptr, "trial", 5);
@@ -30,7 +30,10 @@ int main()
 
     trie_subtruct(my_trie_ptr, "tri", 3);
     trie_subtruct(my_trie_ptr, "great", 5);
-
+    
+    // printf("%p", trie_index(my_trie_ptr, "great", 5));
+    // trie_child_sets_show(trie_index(my_trie_ptr, "tri", 3));
+    
     // trie_child_sets_show(my_trie_ptr);
     // trie_child_sets_show(*my_trie_ptr->child_sets);
     // trie_child_sets_show(*(*my_trie_ptr->child_sets)->child_sets);

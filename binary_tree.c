@@ -371,3 +371,55 @@ int trie_subtruct(trie_p b_trie_p, char* string_, uint8_t str_len)
 
     return SUCCESS;
 }
+
+trie_p trie_index(trie_p b_trie_p, char* string_, uint8_t str_len)
+{
+    if (b_trie_p == NULL || str_len < 0) {
+        return NULL;
+    }
+    EXIST_STATE state = NON_EXIST;
+    char c_temp = 0;
+    trie_p* temp = NULL;
+    trie_p cur_p = b_trie_p, trie_ptr = b_trie_p;
+
+    temp = cur_p->child_sets;
+    for (int i = 0; i < str_len; i++) {
+        c_temp = string_[i];
+        // 扫描字符串中每个字符，一旦出现本地为存储的返回 FAILURE
+        for (int j = 0; j < TIRE_MAX_NODE; j++) {
+            if (*(temp + j) != NULL) {
+                trie_ptr = *(temp + j);
+                cur_p = trie_ptr;
+                if (trie_letter(trie_ptr) == c_temp) {
+                    break;
+                }
+            } else if (j == TIRE_MAX_NODE - 1) {
+                return NULL;
+            } else {
+                continue;
+            }
+        }
+        temp = cur_p->child_sets;
+    }
+
+    return cur_p;
+}
+
+trie_p trie_register(trie_p b_trie_p, char* string_, uint8_t str_len)
+{
+    if (b_trie_p == NULL || str_len < 0) {
+        return NULL;
+    }
+
+
+}
+
+trie_p trie_unregister(trie_p b_trie_p, char* string_, uint8_t str_len)
+{
+    if (b_trie_p == NULL || str_len < 0) {
+        return NULL;
+    }
+
+    
+}
+
