@@ -18,15 +18,17 @@ typedef struct trie trie_t, *trie_p;
 typedef struct trie_task trie_task_t, *trie_task_p;
 
 struct trie_task {
-    void (*trie_data_add)(void *arg);
-    void (*trie_data_substruct)(void *arg);
-    void (*trie_data_show_list)(void *arg);
-    void (*trie_data_control)(void *arg);
-    void *argument;
+    void*   (*trie_data_init)(void *arg); // 返回数据列表数组
+    int     (*trie_data_deinit)(void *arg);
+    int     (*trie_data_add)(void *arg);
+    int     (*trie_data_substruct)(void *arg);
+    void    (*trie_data_show_list)(void *arg);
 } ;
 
 struct trie {
-    uint8_t val;
+    trie_task_p task;
+    void* argument;     // 接收数据列表数组
+
     uint8_t letter;
     EXIST_STATE is_exist;
 
@@ -38,7 +40,7 @@ struct trie {
 
 int trie_child_sets_show(trie_p b_trie_p);
 
-trie_p trie_init(trie_p b_trie_p, uint8_t sets_level);
+trie_p trie_init(trie_p b_trie_p, uint8_t level, void* extrnal_data_p);
 
 int trie_deinit(trie_p b_trie_p);
 

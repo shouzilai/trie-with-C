@@ -39,14 +39,36 @@ int trie_child_sets_show(trie_p b_trie_p)
     return SUCCESS;
 }
 
-trie_p trie_init(trie_p b_trie_p, uint8_t level)
+static int trie_task_init(trie_task_p *task_p, void* extrnal_data_p)
+{
+    if (task_p == NULL || extrnal_data_p == NULL) {
+        return FAILURE;
+    }
+
+    trie_task_p cur_task_p = NULL, target_task_p = (trie_task_p)extrnal_data_p;
+
+    cur_task_p = (trie_task_p)malloc(sizeof(trie_task_t));
+
+    cur_task_p->trie_data_init   = target_task_p->trie_data_init;
+    cur_task_p->trie_data_deinit   = target_task_p->trie_data_deinit;
+    cur_task_p->trie_data_add       = target_task_p->trie_data_add;
+    cur_task_p->trie_data_substruct = target_task_p->trie_data_substruct;
+    cur_task_p->trie_data_show_list = target_task_p->trie_data_show_list; 
+
+    *task_p = cur_task_p;
+
+    return SUCCESS;
+}
+
+trie_p trie_init(trie_p b_trie_p, uint8_t level, void* extrnal_data_p)
 {
     if (b_trie_p == NULL) {
         return NULL;
     }
 
     // 1、初始化 功能成员 
-    b_trie_p->val = 0;
+    trie_task_init(&b_trie_p->task, extrnal_data_p);
+    b_trie_p->argument = b_trie_p->task->trie_data_init(NULL);
     b_trie_p->is_exist = DEFINITELY;
     b_trie_p->letter = 0;
 
@@ -59,6 +81,11 @@ trie_p trie_init(trie_p b_trie_p, uint8_t level)
         return NULL;
     }
     memset(b_trie_p->child_sets, 0x0, TIRE_MAX_NODE * sizeof(trie_p));
+
+    b_trie_p->task->trie_data_deinit(NULL);
+    b_trie_p->task->trie_data_add(NULL);
+    b_trie_p->task->trie_data_substruct(NULL);
+    b_trie_p->task->trie_data_show_list(NULL);
 
     printf("trie init success\n");
     return b_trie_p;
@@ -116,7 +143,7 @@ static int trie_single_init(trie_p b_trie_p, char c, int level)
     }
     trie_p tries_ptr = b_trie_p;
 
-    b_trie_p->val = 0;
+    b_trie_p->task = NULL;
     b_trie_p->letter = c;
     b_trie_p->is_exist = NON_EXIST;
 

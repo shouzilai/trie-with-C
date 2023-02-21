@@ -7,16 +7,23 @@
 
 #include "common.h"
 #include "binary_tree.h"
+#include "trial.h"
+
+const task_trial_t trial_t = {
+    trie_data_init, trie_data_deinit, trie_data_add, trie_data_substruct, trie_data_show_list
+};
 
 int main()
 {
     uint8_t data[10] = {0};
     trie_t my_trie, *my_trie_ptr;
-    my_trie_ptr = trie_init(&my_trie, 0);
+    my_trie_ptr = trie_init(&my_trie, 0, (void*)&trial_t);
 
     if (my_trie_ptr == NULL) {
         printf("NULL\n");
     }
+
+    exit(0);
 
     // trie_child_sets_show(my_trie_ptr);
     trie_add(my_trie_ptr, "great", 5);
