@@ -1,5 +1,6 @@
 #include "binary_tree.h"
 
+static void *s_data_task_p = NULL;
 
 static int trie_is_exist(trie_p b_trie_p)
 {
@@ -39,7 +40,7 @@ int trie_child_sets_show(trie_p b_trie_p)
     return SUCCESS;
 }
 
-static int trie_task_init(trie_task_p *task_p, void* extrnal_data_p)
+static int trie_task_register(trie_task_p *task_p, void* extrnal_data_p)
 {
     if (task_p == NULL || extrnal_data_p == NULL) {
         return FAILURE;
@@ -49,11 +50,11 @@ static int trie_task_init(trie_task_p *task_p, void* extrnal_data_p)
 
     cur_task_p = (trie_task_p)malloc(sizeof(trie_task_t));
 
-    cur_task_p->trie_data_init   = target_task_p->trie_data_init;
-    cur_task_p->trie_data_deinit   = target_task_p->trie_data_deinit;
-    cur_task_p->trie_data_add       = target_task_p->trie_data_add;
-    cur_task_p->trie_data_substruct = target_task_p->trie_data_substruct;
-    cur_task_p->trie_data_show_list = target_task_p->trie_data_show_list; 
+    cur_task_p->init      = target_task_p->init;
+    cur_task_p->deinit    = target_task_p->deinit;
+    cur_task_p->add       = target_task_p->add;
+    cur_task_p->subtruct = target_task_p->subtruct;
+    cur_task_p->show_list = target_task_p->show_list; 
 
     *task_p = cur_task_p;
 
@@ -65,10 +66,11 @@ trie_p trie_init(trie_p b_trie_p, uint8_t level, void* extrnal_data_p)
     if (b_trie_p == NULL) {
         return NULL;
     }
+    s_data_task_p = extrnal_data_p;
 
     // 1、初始化 功能成员 
-    trie_task_init(&b_trie_p->task, extrnal_data_p);
-    b_trie_p->argument = b_trie_p->task->trie_data_init(NULL);
+    trie_task_register(&b_trie_p->task, s_data_task_p);
+    b_trie_p->argument = b_trie_p->task->init("first", 0x1);
     b_trie_p->is_exist = DEFINITELY;
     b_trie_p->letter = 0;
 
@@ -82,13 +84,31 @@ trie_p trie_init(trie_p b_trie_p, uint8_t level, void* extrnal_data_p)
     }
     memset(b_trie_p->child_sets, 0x0, TIRE_MAX_NODE * sizeof(trie_p));
 
-    b_trie_p->task->trie_data_deinit(NULL);
-    b_trie_p->task->trie_data_add(NULL);
-    b_trie_p->task->trie_data_substruct(NULL);
-    b_trie_p->task->trie_data_show_list(NULL);
+
+    // b_trie_p->task->deinit(b_trie_p->argument);
+    b_trie_p->task->add(NULL, "aaa", 3);
+    b_trie_p->task->subtruct(NULL, 0);
+    b_trie_p->task->show_list(NULL);
+
 
     printf("trie init success\n");
     return b_trie_p;
+}
+
+static int trie_task_unregister(trie_task_p *task_p)
+{
+    if (task_p == NULL) {
+        return FAILURE;
+    }
+
+    trie_task_p cur_task_p = NULL;
+
+    if (*task_p != NULL) {
+        free(*task_p);
+        *task_p = NULL;
+    }
+ 
+    return SUCCESS;
 }
 
 static int trie_single_delete(trie_p b_trie_p)
@@ -102,6 +122,10 @@ static int trie_single_delete(trie_p b_trie_p)
         free(tries_ptr->child_sets);
         tries_ptr->child_sets = NULL;
     }
+    if (tries_ptr->is_exist == EXIST || tries_ptr->is_exist == DEFINITELY) {
+        b_trie_p->task->deinit(b_trie_p->argument);
+    }
+    trie_task_unregister(&tries_ptr->task);
 
     return SUCCESS;
 }
@@ -136,31 +160,36 @@ int trie_deinit(trie_p b_trie_p)
     return SUCCESS;
 }
 
-static int trie_single_init(trie_p b_trie_p, char c, int level)
+static int trie_single_init(trie_p b_trie_p, char c, int level, int is_end)
 {
     if (b_trie_p == NULL) {
         return FAILURE;
     }
     trie_p tries_ptr = b_trie_p;
 
-    b_trie_p->task = NULL;
+    if (is_end != 0) {
+        trie_task_register(&b_trie_p->task, s_data_task_p);
+        b_trie_p->argument = b_trie_p->task->init("init", 0x1);
+        b_trie_p->is_exist = EXIST;
+    } else {
+        b_trie_p->is_exist = NON_EXIST;
+        b_trie_p->argument = NULL;
+        b_trie_p->task = NULL;
+    }
     b_trie_p->letter = c;
-    b_trie_p->is_exist = NON_EXIST;
 
     b_trie_p->sets_count = 0;
     b_trie_p->sets_level = level;
-    b_trie_p->child_sets = (trie_p*)malloc(TIRE_MAX_NODE * sizeof(trie_p));
+    b_trie_p->child_sets = (trie_p*)calloc(TIRE_MAX_NODE, sizeof(trie_p));
     if (b_trie_p->child_sets == NULL) {
         printf("trie single init failure\n");
         return FAILURE;
     }
 
-    memset(b_trie_p->child_sets, 0x0, TIRE_MAX_NODE * sizeof(trie_p));
-
     return SUCCESS;    
 }
 
-static int trie_singel_add(trie_p b_trie_p, char c, int level)
+static int trie_singel_add(trie_p b_trie_p, char c, int level, int is_end)
 {
     if (b_trie_p == NULL) {
         return FAILURE;
@@ -181,7 +210,7 @@ static int trie_singel_add(trie_p b_trie_p, char c, int level)
             printf("trie single init failure\n");
             return FAILURE;
         }
-        trie_single_init(*temp, c, level);
+        trie_single_init(*temp, c, level, is_end);
         // tries_ptr->sets_pos = (pos + 1) == level ? pos : pos + 1;
         tries_ptr->sets_count = count + 1;
     } else {
@@ -257,7 +286,7 @@ int trie_add(trie_p b_trie_p, char* string_, uint8_t str_len)
     }
     EXIST_STATE state = NON_EXIST;
     char c_temp = 0;
-    uint8_t level = 0, count = 0;
+    uint8_t level = 0, count = 0, is_end = 0;
     trie_p* temp = NULL;
     trie_p cur_p = b_trie_p;
 
@@ -279,7 +308,8 @@ int trie_add(trie_p b_trie_p, char* string_, uint8_t str_len)
             }
         }
         if (state == NON_EXIST) { // 当前层次不存在相同结点，直接建点
-            trie_singel_add(cur_p, c_temp, i + 1);
+            is_end = (i == str_len - 1 ? 1 : 0);
+            trie_singel_add(cur_p, c_temp, i + 1, is_end);
             cur_p = *(temp + j);
         } else {
             state = NON_EXIST;
@@ -290,7 +320,7 @@ int trie_add(trie_p b_trie_p, char* string_, uint8_t str_len)
         level = cur_p->sets_level;
         temp = cur_p->child_sets;
     }
-    cur_p->is_exist = EXIST;
+    // cur_p->is_exist = EXIST;
 
     return SUCCESS;
 }
@@ -324,6 +354,8 @@ static int trie_single_subtruct(trie_p *b_trie_ps, uint8_t c_count)
         return FAILURE;
     }
     if (b_trie_ps[c_count - 1]->sets_count) {// 重点出现：如果树尾的子集上有挂载，只需要置 EXIST 即可结束
+        b_trie_ps[c_count - 1]->task->deinit(b_trie_ps[c_count - 1]->argument);
+        trie_task_unregister(&b_trie_ps[c_count - 1]->task);
         b_trie_ps[c_count - 1]->is_exist = NON_EXIST;
         return FAILURE;
     }
@@ -432,7 +464,7 @@ trie_p trie_index(trie_p b_trie_p, char* string_, uint8_t str_len)
     return cur_p;
 }
 
-trie_p trie_register(trie_p b_trie_p, char* string_, uint8_t str_len)
+trie_p _trie_data_add(trie_p b_trie_p, char* string_, uint8_t str_len)
 {
     if (b_trie_p == NULL || str_len < 0) {
         return NULL;
@@ -441,7 +473,7 @@ trie_p trie_register(trie_p b_trie_p, char* string_, uint8_t str_len)
 
 }
 
-trie_p trie_unregister(trie_p b_trie_p, char* string_, uint8_t str_len)
+trie_p _trie_data_subtruct(trie_p b_trie_p, char* string_, uint8_t str_len)
 {
     if (b_trie_p == NULL || str_len < 0) {
         return NULL;

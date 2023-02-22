@@ -11,19 +11,10 @@
 #define DOUBLE_LINEAR_LIST_DATA_SIZE  128
 #define TIRE_MAX_NODE  6
 
-struct trie_task;
 struct trie;
 
 typedef struct trie trie_t, *trie_p;
-typedef struct trie_task trie_task_t, *trie_task_p;
 
-struct trie_task {
-    void*   (*trie_data_init)(void *arg); // 返回数据列表数组
-    int     (*trie_data_deinit)(void *arg);
-    int     (*trie_data_add)(void *arg);
-    int     (*trie_data_substruct)(void *arg);
-    void    (*trie_data_show_list)(void *arg);
-} ;
 
 struct trie {
     trie_task_p task;

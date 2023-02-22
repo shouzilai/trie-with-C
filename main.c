@@ -9,8 +9,8 @@
 #include "binary_tree.h"
 #include "trial.h"
 
-const task_trial_t trial_t = {
-    trie_data_init, trie_data_deinit, trie_data_add, trie_data_substruct, trie_data_show_list
+const trie_task_t trial_t = {
+    trie_data_init, trie_data_deinit, trie_data_add, trie_data_subtruct, trie_data_show_list
 };
 
 int main()
@@ -23,13 +23,15 @@ int main()
         printf("NULL\n");
     }
 
-    exit(0);
+    // exit(0);
 
     // trie_child_sets_show(my_trie_ptr);
     trie_add(my_trie_ptr, "great", 5);
     trie_add(my_trie_ptr, "tri", 3);
     trie_add(my_trie_ptr, "trial", 5);
     trie_add(my_trie_ptr, "my", 2);
+    trie_add(my_trie_ptr, "health", 6);
+    trie_add(my_trie_ptr, "none", 4);
 
     trie_ergodic(my_trie_ptr);
     // printf("\nexist is %d\n", trie_str_is_exist(my_trie_ptr, "trial", 3));
