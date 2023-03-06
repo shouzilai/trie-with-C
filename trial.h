@@ -27,6 +27,6 @@ int trie_data_add(void *arg, uint8_t* data, int cmd);
 
 int trie_data_subtruct(void *arg, int index);
 
-void trie_data_show_list(void *arg);
+int trie_data_show_list(void *arg);
 
 #endif

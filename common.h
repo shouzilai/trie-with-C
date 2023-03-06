@@ -37,7 +37,7 @@ struct trie_task {                          // 依赖反转，依赖注入，实
     int     (*deinit)(void *arg);
     int     (*add)(void *arg, uint8_t* data, int cmd);
     int     (*subtruct)(void *arg, int index);
-    void    (*show_list)(void *arg);
+    int     (*show_list)(void *arg);
 } ;
 //######################################################################
 

@@ -14,6 +14,7 @@ void* trie_data_init(uint8_t* meg, int cmd)
 
     // 1.数据块 （数组）分配
     data_ps = (trie_data_p*)calloc(TRIE_DATA_SIZE, sizeof(trie_data_t));
+    memset(data_ps, 0x0, TRIE_DATA_SIZE * sizeof(trie_data_t));
     assert(data_ps != NULL);
 
     // 2.首条数据 分配
@@ -60,9 +61,29 @@ int trie_data_deinit(void *arg)
     return SUCCESS;
 }
 
-static trie_data_p trie_data_single_init(uint8_t* data, int cmd, int index)
+static int trie_data_single_init(trie_data_p* data_s, uint8_t* meg, int cmd, int index)
 {
+    if (data_s == NULL) {
+        return FAILURE;
+    }
+    trie_data_p* data_ps = data_s;
+    trie_data_p data_p = NULL;
 
+    // 1.数据 分配
+    data_ps[index] = (trie_data_p)malloc(sizeof(trie_data_t));
+    assert(data_ps[index] != NULL);
+    data_p = (trie_data_p)data_ps[index];
+
+    // 2.数据成员 分配
+    data_p->message = (uint8_t*)calloc(TRIE_DATA_MEG_SIZE, sizeof(uint8_t));
+    assert(data_p->message != NULL);
+
+    // 3.数据成员 初始化
+    memcpy(data_p->message, meg, strlen(meg));
+    data_p->index = index;
+    data_p->cmd = cmd;
+
+    return SUCCESS;
 }
 
 int trie_data_add(void *arg, uint8_t* data, int cmd)
@@ -70,10 +91,21 @@ int trie_data_add(void *arg, uint8_t* data, int cmd)
     if (arg == NULL || data == NULL || cmd < 0) {
         return FAILURE;
     }
+    uint8_t temp = 0;
+    int l_index = 0, i = 0; // 上一次添加数据使用的索引
+    trie_data_p* data_ps = (trie_data_p*)arg;
+    trie_data_p data_p = NULL;
 
-    trie_data_p data_p = (trie_data_p)arg;
+    l_index = 0;
+    for (i = 0; i < TRIE_DATA_SIZE; i++) {
+        if (data_ps[i] != NULL) {
+            printf("%d ", data_ps[i]->index);
+            l_index = l_index < data_ps[i]->index ? data_ps[i]->index : l_index;
+        }
+    }
+    l_index = (l_index == TRIE_DATA_SIZE -1) ? 1 : l_index + 1;
 
-
+    trie_data_single_init(data_ps, data, cmd, l_index);
 
     printf("trie data add\n");
     return SUCCESS;
@@ -84,8 +116,26 @@ int trie_data_subtruct(void *arg, int index)
     printf("trie data subtruct\n");
 }
 
-void trie_data_show_list(void *arg)
+int trie_data_show_list(void *arg)
 {
+    if (arg == NULL) {
+        return FAILURE;
+    }
+    uint8_t temp = 0;
+    int l_index = 0; // 上一次添加数据使用的索引
+    trie_data_p* data_ps = (trie_data_p*)arg;
+    trie_data_p data_p = NULL;
+
+    for (int i = 0; i < TRIE_DATA_SIZE; i++) {
+        if (data_ps[i] != NULL) {
+            printf("index:%d, cmd:%d\n", data_ps[i]->index, data_ps[i]->cmd);
+            for (int j = 0; j < TRIE_DATA_MEG_SIZE; j++) {
+                printf("%c ", data_ps[i]->message[j]);
+            }
+            printf("\n");
+        }
+    }
+
     printf("trie data show list\n");
 }
 

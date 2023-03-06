@@ -45,5 +45,10 @@ int trie_subtruct(trie_p b_trie_p, char* string_, uint8_t str_len);
 
 trie_p trie_index(trie_p b_trie_p, char* string_, uint8_t str_len);
 
+
+
+int _trie_data_add(trie_p b_trie_p, char* string_, uint8_t* data, int cmd);
+int _trie_data_show_list(trie_p b_trie_p, char* string_);
+
 #endif // __BINARY_TREE_H__
 

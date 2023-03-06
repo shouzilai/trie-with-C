@@ -15,7 +15,7 @@ const trie_task_t trial_t = {
 
 int main()
 {
-    uint8_t data[10] = {0};
+    uint8_t data[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
     trie_t my_trie, *my_trie_ptr;
     my_trie_ptr = trie_init(&my_trie, 0, (void*)&trial_t);
 
@@ -29,11 +29,15 @@ int main()
     trie_add(my_trie_ptr, "great", 5);
     trie_add(my_trie_ptr, "tri", 3);
     trie_add(my_trie_ptr, "trial", 5);
-    trie_add(my_trie_ptr, "my", 2);
-    trie_add(my_trie_ptr, "health", 6);
-    trie_add(my_trie_ptr, "none", 4);
+    // trie_add(my_trie_ptr, "my", 2);
+    // trie_add(my_trie_ptr, "health", 6);
+    // trie_add(my_trie_ptr, "none", 4);
 
     trie_ergodic(my_trie_ptr);
+    _trie_data_add(my_trie_ptr, "great", "123456", 0x1);
+    _trie_data_add(my_trie_ptr, "tri", "this is a little program", 0x1);
+    _trie_data_show_list(my_trie_ptr, "tri");
+
     // printf("\nexist is %d\n", trie_str_is_exist(my_trie_ptr, "trial", 3));
     // printf("exist is %d\n", trie_str_is_exist(my_trie_ptr, "abc", 3));
 
@@ -54,7 +58,7 @@ int main()
     return 0;
 }
 
-// gcc -o trial main.c binary_tree.c
+// gcc -o trial main.c binary_tree.c trial.c
 // valgrind --leak-check=yes ./trial
 
 
