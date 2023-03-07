@@ -486,13 +486,23 @@ int _trie_data_add(trie_p b_trie_p, char* string_, uint8_t* data, int cmd)
     return SUCCESS;
 }
 
-int _trie_data_subtruct(trie_p b_trie_p, char* string_, uint8_t str_len)
+int _trie_data_subtruct(trie_p b_trie_p, char* string_, int index)
 {
-    if (b_trie_p == NULL || str_len < 0) {
+    if (b_trie_p == NULL || string_ == NULL) {
         return FAILURE;
     }
+    trie_task_p cur_task_p = NULL;
+    trie_p cur_p = b_trie_p, trie_ptr = b_trie_p;
 
-    
+    cur_p = trie_index(cur_p, string_, strlen(string_));
+
+    if (cur_p != NULL) {
+        cur_task_p = cur_p->task;
+        printf("cur_task_p %p  add is %p arg %p\n", cur_task_p, cur_task_p->add, cur_p->argument);
+        cur_task_p->subtruct((void*)cur_p->argument, index);
+    }
+
+    return SUCCESS;
 }
 
 int _trie_data_show_list(trie_p b_trie_p, char* string_)
@@ -508,6 +518,8 @@ int _trie_data_show_list(trie_p b_trie_p, char* string_)
     cur_p->task->show_list((void*)cur_p->argument);
 
     printf("trie data show list\n");
+
+    return SUCCESS;
 }
 
 //######################################################################

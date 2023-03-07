@@ -61,6 +61,26 @@ int trie_data_deinit(void *arg)
     return SUCCESS;
 }
 
+static int trie_data_single_deinit(trie_data_p* data_s, int index)
+{
+    if (data_s == NULL) {
+        return FAILURE;
+    }
+    trie_data_p* data_ps = data_s;
+    trie_data_p data_p = NULL;
+
+    
+    if (data_ps[index] != NULL) {
+        if (data_ps[index]->message != NULL) {
+            free(data_ps[index]->message);  // 1.数据成员 回收
+        }
+        free(data_ps[index]);               // 2.数据 回收
+    }
+    memset(&data_ps[index], 0x0, sizeof(trie_data_p));
+
+    return SUCCESS;
+}
+
 static int trie_data_single_init(trie_data_p* data_s, uint8_t* meg, int cmd, int index)
 {
     if (data_s == NULL) {
@@ -100,7 +120,7 @@ int trie_data_add(void *arg, uint8_t* data, int cmd)
     for (i = 0; i < TRIE_DATA_SIZE; i++) {
         if (data_ps[i] != NULL) {
             printf("%d ", data_ps[i]->index);
-            l_index = l_index < data_ps[i]->index ? data_ps[i]->index : l_index;
+            l_index = l_index < data_ps[i]->index ? data_ps[i]->index : l_index;// 找到最大的index
         }
     }
     l_index = (l_index == TRIE_DATA_SIZE -1) ? 1 : l_index + 1;
@@ -113,6 +133,16 @@ int trie_data_add(void *arg, uint8_t* data, int cmd)
 
 int trie_data_subtruct(void *arg, int index)
 {
+    if (arg == NULL || index < 0) {
+        return FAILURE;
+    }
+    uint8_t temp = 0;
+    int l_index = 0, i = 0; // 上一次添加数据使用的索引
+    trie_data_p* data_ps = (trie_data_p*)arg;
+    trie_data_p data_p = NULL;
+
+    trie_data_single_deinit(data_ps, index);
+
     printf("trie data subtruct\n");
 }
 
@@ -135,8 +165,6 @@ int trie_data_show_list(void *arg)
             printf("\n");
         }
     }
-
-    printf("trie data show list\n");
 }
 
 

@@ -34,9 +34,11 @@ int main()
     // trie_add(my_trie_ptr, "none", 4);
 
     trie_ergodic(my_trie_ptr);
-    _trie_data_add(my_trie_ptr, "great", "123456", 0x1);
-    _trie_data_add(my_trie_ptr, "tri", "this is a little program", 0x1);
-    _trie_data_show_list(my_trie_ptr, "tri");
+    // _trie_data_add(my_trie_ptr, "great", "123456", 0x1);
+    // _trie_data_add(my_trie_ptr, "great", "dfsdfafasdfs", 0x1);
+    // _trie_data_show_list(my_trie_ptr, "great");
+    // _trie_data_subtruct(my_trie_ptr, "great", 1);
+    // _trie_data_show_list(my_trie_ptr, "great");
 
     // printf("\nexist is %d\n", trie_str_is_exist(my_trie_ptr, "trial", 3));
     // printf("exist is %d\n", trie_str_is_exist(my_trie_ptr, "abc", 3));
